@@ -1,20 +1,37 @@
-﻿// PeriodicProcess.cpp : このファイルには 'main' 関数が含まれています。プログラム実行の開始と終了がそこで行われます。
-//
+﻿#include <iostream>
+#include "TimeElapsed.h"
 
-#include <iostream>
-
-int main()
+int main(int argc, char *argv[])
 {
-    std::cout << "Hello World!\n";
+	// コマンドライン引数を数値変換
+	int pps = strtol(argv[1], nullptr, 10);
+	// 指定された秒間処理回数から1枚あたり時間算出(秒単位の実数)
+	// (誤差を考慮して0.5ゲタを履かせる)
+	double duration = 1000.0 / (pps + 0.5) / 1000;
+
+    std::cout << "pps = " << pps << std::endl;
+    std::cout << "duration = " << duration << std::endl;
+
+	char buff[32] = { 0 };
+
+	// 処理毎の時間計測用
+	TimerElapsed durationPerProc;
+	// トータル時間計測用
+	TimerElapsed totalDuration;
+
+	totalDuration.restart();
+	for (int cnt = 0; cnt < pps; cnt++)
+	{
+		// 計測開始
+		durationPerProc.restart();
+		// 処理を行う
+		//std::cout << cnt << std::endl;
+		// 1処理あたりの時間が経過するまで待ち
+		while (durationPerProc.elapsed() < duration)
+		{
+			Sleep(0);
+		}
+	}
+	snprintf(buff, sizeof(buff), "%f", totalDuration.elapsed());
+	std::cout << "total duration = " << buff << std::endl;
 }
-
-// プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
-// プログラムのデバッグ: F5 または [デバッグ] > [デバッグの開始] メニュー
-
-// 作業を開始するためのヒント: 
-//    1. ソリューション エクスプローラー ウィンドウを使用してファイルを追加/管理します 
-//   2. チーム エクスプローラー ウィンドウを使用してソース管理に接続します
-//   3. 出力ウィンドウを使用して、ビルド出力とその他のメッセージを表示します
-//   4. エラー一覧ウィンドウを使用してエラーを表示します
-//   5. [プロジェクト] > [新しい項目の追加] と移動して新しいコード ファイルを作成するか、[プロジェクト] > [既存の項目の追加] と移動して既存のコード ファイルをプロジェクトに追加します
-//   6. 後ほどこのプロジェクトを再び開く場合、[ファイル] > [開く] > [プロジェクト] と移動して .sln ファイルを選択します
